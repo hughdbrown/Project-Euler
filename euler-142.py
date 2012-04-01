@@ -1,27 +1,43 @@
-#!/usr/bin/env python
-import psyco
-import collections
-def findSquareTriple2(limit) :
-	c = collections.defaultdict(list)
-	sq = [ x*x for x in xrange(1, limit)]
-	count = 0
-	for i in xrange(1, len(sq)) :
-		print i, count
-		for j in xrange(1 + (i & 1), i) :
-			x, y = (sq[i] - sq[j]) >> 1, (sq[i] + sq[j]) >> 1
-			#if (x + y == sq[i]) :
-			c[y].append(x)
-			count += 1
-	print "Done first part"
-	for x in sorted(c.iterkeys()) :
-		for y in c[x] :
-			if y in c :
-				s = set(c[y]).intersection(set(c[x]))
-				if len(s) :
-					print x, y, s[0]
-					return x, y, s[0]
-	return None
+from collections import defaultdict
+UPPER = 1000
+squares = [x * x for x in range(1, UPPER)]
+set_squares = set(squares)
 
-if __name__ == "__main__" :
-	limit = 10000
-	print findSquareTriple2(limit)
+def create_d():
+    d = defaultdict(list)
+    for i, x in enumerate(squares):
+        for j, y in enumerate(squares):
+            if i > j and ((i & 1) == (j & 1)):
+                d[x - y].append((x, y))
+    return d
+
+def filter_d(d):
+    return dict((k, v) for k, v in d.iteritems() if len(v) >= 2)
+
+def search_d(d):
+    for k, v in d.iteritems():
+        z = k // 2
+        for i in range(0, len(v) - 1):
+            tu = v[i]
+            x = sum(tu) // 2
+            for j in range(i + 1, len(v)):
+                vw = v[j]
+                y = sum(vw) // 2
+                x, y = max(x, y), min(x, y)
+                #print tu, vw, x, y, z
+                #print "\tx + z:", x + z
+                #print "\tx - z:", x - z
+                #print "\ty + z:", y + z
+                #print "\ty - z:", y - z
+                #print "\tx + y?", x + y
+                #print "\tx - y?", x - y
+                if (x + y) in set_squares and (x - y) in set_squares:
+                    return (x, y, z)
+
+if __name__ == '__main__':
+    d = create_d()
+    print "len(d):", len(d)
+    e = filter_d(d)
+    print "len(e):", len(e)
+    print "max pairs to search:", max(len(v) for v in e.values())
+    print search_d(e)
