@@ -7,7 +7,9 @@ def create_d():
     d = defaultdict(list)
     for i, x in enumerate(squares):
         for j, y in enumerate(squares):
-            if i > j and ((i & 1) == (j & 1)):
+            if i <= j:
+                break
+            if ((i & 1) == (j & 1)):
                 d[x - y].append((x, y))
     return d
 
